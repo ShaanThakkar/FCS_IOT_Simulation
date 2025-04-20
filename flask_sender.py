@@ -4,10 +4,10 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from xtea import new as xtea_new, MODE_CBC
 import time
+import os
 
 app = Flask(__name__)
 
-# MQTT and encryption config
 MQTT_BROKER = "broker.hivemq.com"
 TOPIC = "iot/simulation/topic"
 aes_key = b'Sixteen byte key'
@@ -19,7 +19,6 @@ mode = "AES"
 def encrypt_message(msg: str):
     data = msg.encode()
     start = time.perf_counter()
-
     if mode == "AES":
         cipher = AES.new(aes_key, AES.MODE_CBC, iv=aes_iv)
         encrypted = cipher.encrypt(pad(data, AES.block_size))
@@ -28,7 +27,6 @@ def encrypt_message(msg: str):
         encrypted = cipher.encrypt(pad(data, 8))
     else:
         encrypted = data
-
     elapsed = (time.perf_counter() - start) * 1000
     return encrypted, elapsed
 
@@ -44,17 +42,8 @@ def index():
             client.publish(TOPIC, encrypted)
             client.disconnect()
             result = f"Encrypted & sent in {time_taken:.3f} ms"
-
-    return render_template_string("""
-    <!doctype html>
-    <title>IoT Secure Message Sender</title>
-    <h2>Send Encrypted Message to IoT Device</h2>
-    <form method=post>
-      <input type=text name=message placeholder="Enter message">
-      <input type=submit value=Send>
-    </form>
-    <p>{{ result }}</p>
-    """, result=result)
+    return render_template_string(open("device_a_ui.html").read(), result=result)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

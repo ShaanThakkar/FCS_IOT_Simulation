@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IoT Device B - Receiver</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 30px; }
+    .container { background: white; padding: 20px; border-radius: 8px; max-width: 700px; margin: auto; box-shadow: 0 0 12px rgba(0,0,0,0.1); }
+    h2 { color: #2d3436; }
+    #log { background: #ecf0f1; padding: 15px; height: 300px; overflow-y: auto; border-radius: 5px; border: 1px solid #ccc; }
+    .msg { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📥 IoT Device B - Message Receiver</h2>
+    <div id="log">Waiting for messages...</div>
+  </div>
+  <script>
+    const log = document.getElementById('log');
+    const source = new EventSource('/stream');
+    source.onmessage = function(event) {
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.innerText = event.data;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    };
+  </script>
+</body>
+</html>
